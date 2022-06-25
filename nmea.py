@@ -31,7 +31,7 @@ def printVersion():
 class GPGGASentence:
  
   def __init__(self, utcTime = 0.0, lat = 0.0, long = 0.0, fixQual = 0, nbSat = 0, hdop = 0.0, alt = 0.0, heightGeoid = 0.0, timeDGPS = 0, dGPSRefId = 0):
-    self.utcTime = utcTime
+    self.utcTime = utcTime  # Stored as seconds since the beginning of the day (float)
     self.lat = lat
     self.long = long
     self.fixQual = fixQual
@@ -57,15 +57,20 @@ def parseArgs():
 
 
 # GPGGA: Global Positioning System Fix Data
-def parseGPGGA(inSentence):
-  print (inSentence)
-  
+def parseGPGGA(inSentence):  
   fields = re.split(r'\,', inSentence) 
-  print (fields)
   if (fields[0] != "$GPGGA"):
     raise ("Sentence is not GPGGA")
   
   parsedGPGGA = GPGGASentence()
+
+  utcTime = re.match(r"\s*(\d{1,2})(\d{2})(\d{2}\.\d*)", fields[1]) 
+  if (utcTime == None):
+    raise ("Unable to parse UTC Time")
+  parsedGPGGA.utcTime = float(utcTime.group(1)) * 3600.0
+  parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(2)) * 60.0
+  parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(3))
+
   
   latitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d{4})", fields[2]) 
   if (latitude == None):
@@ -90,34 +95,40 @@ def parseGPGGA(inSentence):
   
   return parsedGPGGA
 
-def unitTestGPGGA(sentence, expectedPos):
+def unitTestGPGGA(sentence, expectedTime, expectedPos):
   parsedPos = Position()
 
-  print ("Parsing NMEA...")
   print (sentence);
 
   parsedGPGGA = parseGPGGA(sentence)
   parsedPos.lat = parsedGPGGA.lat
   parsedPos.long = parsedGPGGA.long
-  parsedPos.alt = parsedGPGGA.alt
+  parsedPos.alt = parsedGPGGA.alt 
   
+  if (not math.isclose(parsedGPGGA.utcTime, expectedTime, abs_tol=0.0000000001)):
+    print ("Invalid UTC Time")
+    print ("Expected: "+ str(expectedTime))
+    print ("Parsed  : "+ str(parsedGPGGA.utcTime))
+    return False
   
-  if (expectedPos.equal(parsedPos)):
-    return True
-  
-  print ("Expected: "+ expectedPos.toString())
-  print ("Parsed  : "+ parsedPos.toString())
-  return False;
+  if (not expectedPos.equal(parsedPos)):
+    print ("Invalid Position")
+    print ("Expected: "+ expectedPos.toString())
+    print ("Parsed  : "+ parsedPos.toString())
+    return False
+          
+  return True;
 
 
 def unitTest():
   print ("UNIT TEST")
+  print ("Parsing NMEA...")
   
   expectedPos = Position(-43.1234, -73.0, 2.0)
-  if (unitTestGPGGA("$GPGGA,120000.000,4307.4040,S,07300.0000,W,1,9,0.91,2.0,M,,M,,*55", expectedPos) == False):
+  if (unitTestGPGGA("$GPGGA,120000.000,4307.4040,S,07300.0000,W,1,9,0.91,2.0,M,,M,,*55", 12*3600.0, expectedPos) == False):
     return False
   expectedPos = Position(37.387458333, -121.97236, 9.0)
-  if (unitTestGPGGA("$GPGGA, 161229.487, 3723.2475, N, 12158.3416, W, 1, 07, 1.0, 9.0, M, , , , 0000*18", expectedPos) == False):
+  if (unitTestGPGGA("$GPGGA, 161229.487, 3723.2475, N, 12158.3416, W, 1, 07, 1.0, 9.0, M, , , , 0000*18", 16*3600.0 + 12*60.0 + 29.487, expectedPos) == False):
     return False
 
   print ("UNIT TEST PASS")
