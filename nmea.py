@@ -15,15 +15,15 @@ class Position:
     self.long = long
     self.alt = alt
 
-  def toString(self):
+  def __str__(self):
     return "Lat=" + str(self.lat) + "; Long=" + str(self.long) + "; Alt=" + str(self.alt)
 
-  def equal(self, pos):
+  def __eq__(self, pos):
     return math.isclose(self.lat, pos.lat, abs_tol=0.00001) and \
       math.isclose(self.long, pos.long, abs_tol=0.00001) and \
       math.isclose(self.alt, pos.alt, abs_tol=0.00001)
 
-def printVersion():
+def print_version():
   print("Platform       : " + platform.system())
   print("Python version : " + platform.python_version())
 
@@ -42,11 +42,11 @@ class GPGGASentence:
     self.timeDGPS = timeDGPS
     self.dGPSRefId = dGPSRefId
 
-  def toString(self):
+  def __str__(self):
     return "Lat=" + str(self.lat) + "; Long=" + str(self.long) + "; Alt=" + str(self.alt)
 
 
-def parseArgs():
+def parse_args():
 
   #print (sys.argv)
   opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
@@ -111,10 +111,10 @@ def unitTestGPGGA(sentence, expectedTime, expectedPos):
     print ("Parsed  : "+ str(parsedGPGGA.utcTime))
     return False
 
-  if (not expectedPos.equal(parsedPos)):
+  if (expectedPos != (parsedPos)):
     print ("Invalid Position")
-    print ("Expected: "+ expectedPos.toString())
-    print ("Parsed  : "+ parsedPos.toString())
+    print ("Expected: " + str(expectedPos))
+    print ("Parsed  : " + str(parsedPos))
     return False
 
   return True;
@@ -142,8 +142,8 @@ def unitTest():
   return True
 #______________________________________________________________________________
 def main():
-  printVersion()
-  test = parseArgs()
+  print_version()
+  test = parse_args()
 
   if (test == True):
     if (unitTest() == False):
