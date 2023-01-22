@@ -15,6 +15,34 @@ class Position:
     self.long = long
     self.alt = alt
 
+    @property
+    def lat(self):
+        return self._lat
+    @lat.setter
+    def lat(self, value):
+        if (value < -90.0) or (value > 90.0):
+            raise ValueError("Latitude value must be between -90.0 and +90.0 degrees")
+        else:
+            self._lat = value
+
+    @property
+    def long(self):
+        return self._long
+    @long.setter
+    def long(self, value):
+        if (value < -180.0) or (value > 180.0):
+            raise ValueError("Longitude value must be between -180.0 and +180.0 degrees")
+        else:
+            self._long = value
+
+    @property
+    def alt(self):
+        return self._alt
+    @alt.setter
+    def alt(self, value):
+        self._alt = value
+
+
   def __str__(self):
     return "Lat=" + str(self.lat) + "; Long=" + str(self.long) + "; Alt=" + str(self.alt)
 
@@ -57,7 +85,7 @@ def parse_args():
 
 
 # GPGGA: Global Positioning System Fix Data
-def parseGPGGA(inSentence):
+def parse_GPGGA(inSentence):
   fields = re.split(r'\,', inSentence)
   if (fields[0] != "$GPGGA"):
     raise ("Sentence is not GPGGA")
@@ -95,12 +123,12 @@ def parseGPGGA(inSentence):
 
   return parsedGPGGA
 
-def unitTestGPGGA(sentence, expectedTime, expectedPos):
+def unit_test_GPGGA(sentence, expectedTime, expectedPos):
   parsedPos = Position()
 
   print (sentence);
 
-  parsedGPGGA = parseGPGGA(sentence)
+  parsedGPGGA = parse_GPGGA(sentence)
   parsedPos.lat = parsedGPGGA.lat
   parsedPos.long = parsedGPGGA.long
   parsedPos.alt = parsedGPGGA.alt
@@ -120,18 +148,18 @@ def unitTestGPGGA(sentence, expectedTime, expectedPos):
   return True;
 
 
-def unitTest():
+def unit_test():
   print ("UNIT TEST")
   print ("Parsing NMEA...")
 
   expectedPos = Position(-43.1234, -73.0, 2.0)
-  if (unitTestGPGGA("$GPGGA,120000.000,4307.4040,S,07300.0000,W,1,9,0.91,2.0,M,,M,,*55", 12*3600.0, expectedPos) == False):
+  if (unit_test_GPGGA("$GPGGA,120000.000,4307.4040,S,07300.0000,W,1,9,0.91,2.0,M,,M,,*55", 12*3600.0, expectedPos) == False):
     return False
   expectedPos = Position(37.387458333, -121.97236, 9.0)
-  if (unitTestGPGGA("$GPGGA, 161229.487, 3723.2475, N, 12158.3416, W, 1, 07, 1.0, 9.0, M, , , , 0000*18", 16*3600.0 + 12*60.0 + 29.487, expectedPos) == False):
+  if (unit_test_GPGGA("$GPGGA, 161229.487, 3723.2475, N, 12158.3416, W, 1, 07, 1.0, 9.0, M, , , , 0000*18", 16*3600.0 + 12*60.0 + 29.487, expectedPos) == False):
     return False
   expectedPos = Position(33.5705224283, -112.1842949, 354.682)
-  if (unitTestGPGGA("$GPGGA,001038.00,3334.2313457,N,11211.0576940,W,2,04,5.4,354.682,M,- 26.574,M,7.0,0138*79", 10*60.0 + 38.0, expectedPos) == False):
+  if (unit_test_GPGGA("$GPGGA,001038.00,3334.2313457,N,11211.0576940,W,2,04,5.4,354.682,M,- 26.574,M,7.0,0138*79", 10*60.0 + 38.0, expectedPos) == False):
     return False
 
 
@@ -146,7 +174,7 @@ def main():
   test = parse_args()
 
   if (test == True):
-    if (unitTest() == False):
+    if (unit_test() == False):
       print ("UNIT TEST FAIL!")
 
 
