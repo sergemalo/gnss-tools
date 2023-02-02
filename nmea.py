@@ -4,6 +4,16 @@ import platform
 import re
 import math
 
+
+# NMEA example:
+# 3723.2475
+# DDMM.MMMM
+#class CoordDMS:
+#    def __init__(self, degrees, minutes, factional_minutes):
+
+def minutes_to_decimal(minutes_mantissa : int, minutes_frac: int):
+    return (minutes_mantissa + minutes_frac/10000.0)/60.0
+
 # Position Class:
 # Values are stored in decimal, in floating-point attributes (Python's float is a double-precision C++)
 # Latitude range : [-90.0, +90.0]
@@ -104,7 +114,8 @@ def parse_GPGGA(inSentence):
   if (latitude == None):
     raise ("Unable to parse Latitude")
   parsedGPGGA.lat = float(latitude.group(1))
-  parsedGPGGA.lat = parsedGPGGA.lat + (float(latitude.group(2)) + float(latitude.group(4) )/10000.0 )/60.0
+  parsedGPGGA.lat = parsedGPGGA.lat + minutes_to_decimal(int(latitude.group(2)), int(latitude.group(4)))
+  #parsedGPGGA.lat = parsedGPGGA.lat + (float(latitude.group(2)) + float(latitude.group(4) )/10000.0 )/60.0
   if (fields[3] == "S"):
       parsedGPGGA.lat = -parsedGPGGA.lat
 
@@ -112,7 +123,8 @@ def parse_GPGGA(inSentence):
   if (longitude == None):
     raise ("Unable to parse Longitude")
   parsedGPGGA.long = float(longitude.group(1))
-  parsedGPGGA.long = parsedGPGGA.long + (float(longitude.group(2)) + float(longitude.group(4) )/10000.0 )/60.0
+  parsedGPGGA.long = parsedGPGGA.long + minutes_to_decimal(int(longitude.group(2)), int(longitude.group(4)))
+  #parsedGPGGA.long = parsedGPGGA.long + (float(longitude.group(2)) + float(longitude.group(4) )/10000.0 )/60.0
 
   west = re.match(r"\s*(\w+)", fields[5])
   if (west.group(1) == "W"):
