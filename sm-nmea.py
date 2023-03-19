@@ -1,15 +1,7 @@
 #!/usr/bin/python3
 import sys
-import platform
+import version
 from pathlib import PurePath
-
-# import nmea
-
-
-def printVersion():
-    print("Platform       : " + platform.system())
-    print("Python version : " + platform.python_version())
-
 
 class scriptOptions:
     def __init__(self):
@@ -48,7 +40,7 @@ def unit_test():
 
 # ______________________________________________________________________________
 def main():
-    printVersion()
+    version.print_version()
     opt = scriptOptions()
     opt.parse_argvs()
 
