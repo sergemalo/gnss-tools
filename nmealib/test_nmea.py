@@ -2,27 +2,42 @@ from nmea import talker_id
 from nmea import msg_type
 from nmea import Position
 from nmea import parse_GPGGA
+from nmea import parse_GPRMC
+from nmea import RMCSentence
 from nmea import toto
 import math
+import datetime
+
 
 def test_toto():
     toto()
 
+
 def test_talker_id():
-    tid = talker_id("$GNRMC,141504.00,A,4533.04027,N,07336.12353,W,0.004,,140323,,,A,V*07")
-    assert(tid == "GN")
+    tid = talker_id(
+        """$GNRMC,141504.00,A,4533.04027,N,07336.12353,W,0.004,,140323,,,A,V*07"""
+    )
+    assert tid == "GN"
     tid = talker_id("$GNVTG,,T,,M,0.004,N,0.007,K,A*3E")
-    assert(tid == "GN")
-    tid = talker_id("$GNGGA,141504.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4B")
-    assert(tid == "GN")
+    assert tid == "GN"
+    tid = talker_id(
+        "$GNGGA,141504.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4B"
+    )
+    assert tid == "GN"
+
 
 def test_msg_type():
-    msg_t = msg_type("$GNRMC,141504.00,A,4533.04027,N,07336.12353,W,0.004,,140323,,,A,V*07")
-    assert(msg_t == "RMC")
+    msg_t = msg_type(
+        "$GNRMC,141504.00,A,4533.04027,N,07336.12353,W,0.004,,140323,,,A,V*07"
+    )
+    assert msg_t == "RMC"
     msg_t = msg_type("$GNVTG,,T,,M,0.004,N,0.007,K,A*3E")
-    assert(msg_t == "VTG")
-    msg_t = msg_type("$GNGGA,141504.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4B")
-    assert(msg_t == "GGA")
+    assert msg_t == "VTG"
+    msg_t = msg_type(
+        "$GNGGA,141504.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4B"
+    )
+    assert msg_t == "GGA"
+
 
 def unit_test_GPGGA(sentence, expectedTime, expectedPos):
     parsedPos = Position()
@@ -67,3 +82,10 @@ def test_gpgga():
         10 * 60.0 + 38.0,
         expectedPos,
     )
+
+def test_gprmc():
+    #
+    expected = datetime.datetime(1995, 4, 13, 21, 2, 30, tzinfo=datetime.timezone.utc)
+    test_val = parse_GPRMC(
+        "$GPRMC,210230,A,3855.4487,N,09446.0071,W,0.0,076.2,130495,003.8,E*69")
+    assert(test_val.utc_datetime == expected)
