@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
+from nmealib import nmea
 from pathlib import PurePath
 
 class scriptOptions:
@@ -25,13 +26,24 @@ class scriptOptions:
             if a == "-t":
                 self.unit_test = True
             if a == "-f":
-                if len(sys.argv) > i:
+                if len(sys.argv)-1 > i:
                     self.file_name = sys.argv[i + 1]
                     ++i
                 else:
                     raise RuntimeError("No file_name given with -f")
             ++i
 
+def analyze_time(file_name: str):
+    # Open file
+    with open(file_name) as f:
+        line = f.readline()
+        print(line)
+        print(nmea.msg_type(line))
+
+    # extract first GPRMC
+    # scan file from the end
+    # extract last GPRMC
+    # Compute delta time and date
 
 def unit_test():
     print()
@@ -52,5 +64,7 @@ def main():
         unit_test()
         return
 
+    nmea.toto()
 
+    analyze_time(opt.file_name)
 main()
