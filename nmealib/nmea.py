@@ -134,7 +134,7 @@ class GPGGASentence:
 # GPGGA: Global Positioning System Fix Data
 def parse_GPGGA(inSentence):
     fields = re.split(r"\,", inSentence)
-    if fields[0] != "$GPGGA":
+    if fields and fields[0] != "$GPGGA":
         raise ("Sentence is not GPGGA")
 
     parsedGPGGA = GPGGASentence()
@@ -178,6 +178,32 @@ class RMCSentence:
         self.utc_datetime = datetime.datetime(1980, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
 def parse_GPRMC(in_sentence: str):
+    fields = re.split(r"\,", in_sentence)
+    if fields and fields[0] != "$GPRMC":
+        raise ("Sentence is not GPRMC")
+
     result = RMCSentence()
-    result.utc_datetime = datetime.datetime(2000, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+
+    utc_time = re.match(r"\s*(\d{2})(\d{2})(\d{2})(\.*)(\d*)\s*", fields[1])
+    if utc_time is None:
+        raise ("Unable to parse UTC Time")
+    hours = int(utc_time.group(1))
+    minutes = int(utc_time.group(2))
+    seconds = int(utc_time.group(3))
+    m_secs = 0
+    if utc_time.group(5):
+        m_secs = int((float(utc_time.group(5)) / (10**len(utc_time.group(5)))) * 1000000)
+
+    utc_date = re.match(r"\s*(\d{2})(\d{2})(\d{2})\s*", fields[9])
+    if utc_date is None:
+        raise ("Unable to parse UTC Date")
+    day = int(utc_date.group(1))
+    month = int(utc_date.group(2))
+    year = int(utc_date.group(3))
+    if (year < 80):
+        year = year + 2000
+    else:
+        year = year + 1900
+
+    result.utc_datetime = datetime.datetime(year, month, day, hours, minutes, seconds, m_secs, tzinfo=datetime.timezone.utc)
     return result
