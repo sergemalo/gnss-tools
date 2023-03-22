@@ -46,6 +46,13 @@ def analyze_time(file_name: str):
     if (nmea_sentences):
         print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)
 
+    if (len(nmea_sentences) > 1):
+        print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)
+        print("End time of NMEA file:", nmea_sentences[-1].utc_datetime)
+        duration = nmea_sentences[-1].utc_datetime - nmea_sentences[0].utc_datetime
+        print("Duration of NMEA file:", duration)
+
+
     # extract first GPRMC
     # scan file from the end
     # extract last GPRMC
