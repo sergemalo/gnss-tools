@@ -34,11 +34,17 @@ class scriptOptions:
             ++i
 
 def analyze_time(file_name: str):
+
+    nmea_sentences = []
+
     # Open file
     with open(file_name) as f:
-        line = f.readline()
-        print(line)
-        print(nmea.msg_type(line))
+        for line in f:
+            if (nmea.msg_type(line) == "RMC"):
+                nmea_sentences.append(nmea.parse_GPRMC(line))
+
+    if (nmea_sentences):
+        print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)
 
     # extract first GPRMC
     # scan file from the end

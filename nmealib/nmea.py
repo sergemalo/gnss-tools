@@ -179,7 +179,7 @@ class RMCSentence:
 
 def parse_GPRMC(in_sentence: str):
     fields = re.split(r"\,", in_sentence)
-    if fields and fields[0] != "$GPRMC":
+    if fields and fields[0][3:6] != "RMC":
         raise ("Sentence is not GPRMC")
 
     result = RMCSentence()
