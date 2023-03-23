@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea
+from nmealib import nmea, RMCSentence, parse_GPRMC
 from pathlib import PurePath
 
 class scriptOptions:
@@ -37,11 +37,12 @@ def analyze_time(file_name: str):
 
     nmea_sentences = []
 
+    #myrmc = RMCSentence()
     # Open file
     with open(file_name) as f:
         for line in f:
             if (nmea.msg_type(line) == "RMC"):
-                nmea_sentences.append(nmea.parse_GPRMC(line))
+                nmea_sentences.append(parse_GPRMC(line))
 
     if (nmea_sentences):
         print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)

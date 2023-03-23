@@ -1,12 +1,12 @@
+from nmea import toto
 from nmea import talker_id
 from nmea import msg_type
-from nmea import Position
-from nmea import parse_GPGGA
-from nmea import parse_GPRMC
-from nmea import RMCSentence
-from nmea import toto
+from position import Position
+from gga import parse_GPGGA
+from rmc import parse_GPRMC
+from rmc import RMCSentence
 import math
-import datetime
+from datetime import datetime, timezone
 
 
 def test_toto():
@@ -84,13 +84,12 @@ def test_gpgga():
     )
 
 def test_gprmc():
-    expected = datetime.datetime(1995, 4, 13, 21, 2, 30, tzinfo=datetime.timezone.utc)
+    expected = datetime(1995, 4, 13, 21, 2, 30, tzinfo=timezone.utc)
     test_val = parse_GPRMC(
         "$GPRMC,210230,A,3855.4487,N,09446.0071,W,0.0,076.2,130495,003.8,E*69")
     assert(test_val.utc_datetime == expected)
-    expected = datetime.datetime(2022, 5, 13, 20, 35, 22, 120000, tzinfo=datetime.timezone.utc)
+    expected = datetime(2022, 5, 13, 20, 35, 22, 120000, tzinfo=timezone.utc)
     test_val = parse_GPRMC(
         "$GPRMC,203522.12,A,5109.0262308,N,11401.8407342,W,0.004,133.4,130522,0.0,E,D*2B")
     assert(test_val.utc_datetime == expected)
 
-    #$GPRMC,210230,A,3855.4487,N,09446.0071,W,0.0,076.2,130495,003.8,E*69
