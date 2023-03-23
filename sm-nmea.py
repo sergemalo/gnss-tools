@@ -3,6 +3,7 @@ import sys
 import version
 from nmealib import nmea, RMCSentence, parse_GPRMC
 from pathlib import PurePath
+from datetime import timedelta
 
 class scriptOptions:
     def __init__(self):
@@ -33,31 +34,44 @@ class scriptOptions:
                     raise RuntimeError("No file_name given with -f")
             ++i
 
-def analyze_time(file_name: str):
-
+def load_nmea_file(file_name: str):
     nmea_sentences = []
 
-    #myrmc = RMCSentence()
-    # Open file
     with open(file_name) as f:
         for line in f:
             if (nmea.msg_type(line) == "RMC"):
                 nmea_sentences.append(parse_GPRMC(line))
 
-    if (nmea_sentences):
-        print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)
+    return nmea_sentences
 
-    if (len(nmea_sentences) > 1):
-        print("Start time of NMEA file:", nmea_sentences[0].utc_datetime)
-        print("End time of NMEA file:", nmea_sentences[-1].utc_datetime)
-        duration = nmea_sentences[-1].utc_datetime - nmea_sentences[0].utc_datetime
+def analyze_time_rmc(nmea_sentences: list):
+
+    first_rmc = None
+    last_rmc = None
+    for s in nmea_sentences:
+        if type(s) == RMCSentence:
+            first_rmc = s
+            break
+
+    if not first_rmc:
+        print("Cannot analyze time based on RMC sentences: No RMC sentence found")
+        return
+
+    print("Start time of NMEA file:", first_rmc.utc_datetime)
+
+    i = len(nmea_sentences) - 1
+    while (i >= 0):
+        if type(nmea_sentences[i]) == RMCSentence:
+            last_rmc = nmea_sentences[i]
+            break
+
+    duration = timedelta(0)
+    if first_rmc != last_rmc:
+        print("End time of NMEA file:", last_rmc.utc_datetime)
+        duration = last_rmc.utc_datetime - first_rmc.utc_datetime
         print("Duration of NMEA file:", duration)
 
-
-    # extract first GPRMC
-    # scan file from the end
-    # extract last GPRMC
-    # Compute delta time and date
+    return duration
 
 def unit_test():
     print()
@@ -80,5 +94,7 @@ def main():
 
     nmea.toto()
 
-    analyze_time(opt.file_name)
+    nmea_sentences = load_nmea_file(opt.file_name)
+    analyze_time_rmc(nmea_sentences)
+
 main()
