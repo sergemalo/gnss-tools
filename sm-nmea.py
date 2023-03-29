@@ -73,6 +73,18 @@ def analyze_time_rmc(nmea_sentences: list):
 
     return duration
 
+#x = r λ cos(φ0)
+#y = r φ
+def cep(nmea_sentences: list):
+    # Convert all GGP positions to X,Y
+    # Compute Average position
+    # Compute X, Y, Z RMS
+    # Compute CEP
+    # Compute RMS
+    # Compute 2D R95
+    # Compute 2drms
+
+
 def unit_test():
     print()
     print("UNIT TEST")
