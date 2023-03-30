@@ -1,5 +1,7 @@
 import math
 
+EARTH_RADIUS = 6371008.8
+
 # Position Class:
 # Values are stored in decimal, in floating-point attributes
 # (Python's float is a double-precision C++)
@@ -55,6 +57,11 @@ class Position:
             + "; Alt="
             + str(self.alt)
         )
+
+    def to_xy(self):
+        x = EARTH_RADIUS * math.radians(self.long) * math.cos(math.radians(self.lat))
+        y = EARTH_RADIUS * math.radians(self.lat)
+        return (x, y)
 
     def __eq__(self, pos):
         return (

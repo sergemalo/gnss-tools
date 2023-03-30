@@ -93,3 +93,15 @@ def test_gprmc():
         "$GPRMC,203522.12,A,5109.0262308,N,11401.8407342,W,0.004,133.4,130522,0.0,E,D*2B")
     assert(test_val.utc_datetime == expected)
 
+
+def test_lla_to_xy():
+    pos = Position(0, 0, 0)
+    expected = (0.0, 0.0)
+    assert(expected == pos.to_xy())
+    pos = Position(0, 1, 0)
+    expected = (111195.080, 0.0)
+    assert(expected == pos.to_xy())
+    pos = Position(1, 0, 0)
+    expected = (0.0, 111195.080)
+    assert(expected == pos.to_xy())
+
