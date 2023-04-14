@@ -73,6 +73,8 @@ def analyze_time_rmc(nmea_sentences: list):
 
     return duration
 
+#φ: Latitude
+#λ: Longitude
 #x = r λ cos(φ0)
 #y = r φ
 def cep(nmea_sentences: list):

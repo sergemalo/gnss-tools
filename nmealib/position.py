@@ -1,6 +1,9 @@
 import math
+from collections import namedtuple
 
 EARTH_RADIUS = 6371008.8
+
+XYPoint = namedtuple("XYPoint", "x y")
 
 # Position Class:
 # Values are stored in decimal, in floating-point attributes
@@ -61,7 +64,7 @@ class Position:
     def to_xy(self):
         x = EARTH_RADIUS * math.radians(self.long) * math.cos(math.radians(self.lat))
         y = EARTH_RADIUS * math.radians(self.lat)
-        return (x, y)
+        return XYPoint(x, y)
 
     def __eq__(self, pos):
         return (

@@ -1,7 +1,7 @@
 from nmea import toto
 from nmea import talker_id
 from nmea import msg_type
-from position import Position
+from position import Position, XYPoint
 from gga import parse_GPGGA
 from rmc import parse_GPRMC
 from rmc import RMCSentence
@@ -95,13 +95,30 @@ def test_gprmc():
 
 
 def test_lla_to_xy():
+    my_abs_tol = 0.001 # 1mm absolute totelance
+
     pos = Position(0, 0, 0)
-    expected = (0.0, 0.0)
-    assert(expected == pos.to_xy())
+    expectedXY = XYPoint(0.0, 0.0)
+    testXY = pos.to_xy()
+    assert(math.isclose(expectedXY.x, testXY.x, abs_tol = my_abs_tol) and
+           math.isclose(expectedXY.y, testXY.y, abs_tol = my_abs_tol))
+
     pos = Position(0, 1, 0)
-    expected = (111195.080, 0.0)
-    assert(expected == pos.to_xy())
+    expectedXY = XYPoint(111195.080, 0.0)
+    testXY = pos.to_xy()
+    assert(math.isclose(expectedXY.x, testXY.x, abs_tol = my_abs_tol) and
+           math.isclose(expectedXY.y, testXY.y, abs_tol = my_abs_tol))
+
     pos = Position(1, 0, 0)
-    expected = (0.0, 111195.080)
-    assert(expected == pos.to_xy())
+    expectedXY = XYPoint(0.0, 111195.080)
+    testXY = pos.to_xy()
+    assert(math.isclose(expectedXY.x, testXY.x, abs_tol = my_abs_tol) and
+           math.isclose(expectedXY.y, testXY.y, abs_tol = my_abs_tol))
+
+    #pos = Position(0, 1, 0)
+    #expected = (111195.080, 0.0)
+    #assert(expected == pos.to_xy())
+    #pos = Position(1, 0, 0)
+    #expected = (0.0, 111195.080)
+    #assert(expected == pos.to_xy())
 
