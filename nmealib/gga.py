@@ -52,21 +52,20 @@ class GPGGASentence:
 # GPGGA: Global Positioning System Fix Data
 def parse_GPGGA(inSentence):
     fields = re.split(r"\,", inSentence)
-    if fields and fields[0] != "$GPGGA":
-        raise ("Sentence is not GPGGA")
+    if fields and fields[0][3:6] != "GGA":
+        raise TypeError("Sentence is not NMEA XXGGA")
 
     parsedGPGGA = GPGGASentence()
-
     utcTime = re.match(r"\s*(\d{1,2})(\d{2})(\d{2}\.\d*)", fields[1])
     if utcTime is None:
-        raise ("Unable to parse UTC Time")
+        raise RuntimeError("Unable to parse UTC Time")
     parsedGPGGA.utcTime = float(utcTime.group(1)) * 3600.0
     parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(2)) * 60.0
     parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(3))
 
     latitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d{4})", fields[2])
     if latitude is None:
-        raise ("Unable to parse Latitude")
+        raise RuntimeError("Unable to parse Latitude")
     parsedGPGGA.lat = float(latitude.group(1))
     parsedGPGGA.lat = parsedGPGGA.lat + minutes_to_decimal(
         int(latitude.group(2)), int(latitude.group(4))
@@ -76,7 +75,7 @@ def parse_GPGGA(inSentence):
 
     longitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d{4})", fields[4])
     if longitude is None:
-        raise ("Unable to parse Longitude")
+        raise RuntimeError("Unable to parse Longitude")
     parsedGPGGA.long = float(longitude.group(1))
     parsedGPGGA.long = parsedGPGGA.long + minutes_to_decimal(
         int(longitude.group(2)), int(longitude.group(4))

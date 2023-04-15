@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea, RMCSentence, parse_GPRMC
+from nmealib import nmea, RMCSentence, parse_GPRMC, GPGGASentence, parse_GPGGA, Position, XYPoint
 from pathlib import PurePath
 from datetime import timedelta
 
@@ -41,6 +41,8 @@ def load_nmea_file(file_name: str):
         for line in f:
             if (nmea.msg_type(line) == "RMC"):
                 nmea_sentences.append(parse_GPRMC(line))
+            elif (nmea.msg_type(line) == "GGA"):
+                nmea_sentences.append(parse_GPGGA(line))
 
     return nmea_sentences
 
@@ -64,6 +66,7 @@ def analyze_time_rmc(nmea_sentences: list):
         if type(nmea_sentences[i]) == RMCSentence:
             last_rmc = nmea_sentences[i]
             break
+        i -= 1
 
     duration = timedelta(0)
     if first_rmc != last_rmc:
@@ -79,7 +82,16 @@ def analyze_time_rmc(nmea_sentences: list):
 #y = r φ
 def cep(nmea_sentences: list):
     # Convert all GGP positions to X,Y
+    xy_positions = []
+    for line in nmea_sentences:
+        if type(line) == GPGGASentence:
+            lla = Position(line.lat, line.long, line.alt)
+            xy_positions.append(lla.to_xy())
+    print (xy_positions)
     # Compute Average position
+    avg = XYPoint(sum([p.x for p in xy_positions])/len(xy_positions), sum([p.y for p in xy_positions])/len(xy_positions))
+
+    print ("Average XY Position: ", avg)
     # Compute X, Y, Z RMS
     # Compute CEP
     # Compute RMS
@@ -110,5 +122,6 @@ def main():
 
     nmea_sentences = load_nmea_file(opt.file_name)
     analyze_time_rmc(nmea_sentences)
+    cep(nmea_sentences)
 
 main()

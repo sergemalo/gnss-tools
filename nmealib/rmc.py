@@ -16,13 +16,13 @@ class RMCSentence:
 def parse_GPRMC(in_sentence: str):
     fields = re.split(r"\,", in_sentence)
     if fields and fields[0][3:6] != "RMC":
-        raise ("Sentence is not NMEA XXRMC")
+        raise TypeError("Sentence is not NMEA XXRMC")
 
     result = RMCSentence()
 
     utc_time = re.match(r"\s*(\d{2})(\d{2})(\d{2})(\.*)(\d*)\s*", fields[1])
     if utc_time is None:
-        raise ("Unable to parse UTC Time")
+        raise RuntimeError("Unable to parse UTC Time")
     hours = int(utc_time.group(1))
     minutes = int(utc_time.group(2))
     seconds = int(utc_time.group(3))
@@ -34,7 +34,7 @@ def parse_GPRMC(in_sentence: str):
 
     utc_date = re.match(r"\s*(\d{2})(\d{2})(\d{2})\s*", fields[9])
     if utc_date is None:
-        raise ("Unable to parse UTC Date")
+        raise RuntimeError("Unable to parse UTC Date")
     day = int(utc_date.group(1))
     month = int(utc_date.group(2))
     year = int(utc_date.group(3))
