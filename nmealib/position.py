@@ -5,6 +5,9 @@ EARTH_RADIUS = 6371008.8
 
 XYPoint = namedtuple("XYPoint", "x y")
 
+def xy_dist(a, b):
+    return math.sqrt((a.x - b.x) **2 + ((a.y) - b.y) ** 2)
+
 # Position Class:
 # Values are stored in decimal, in floating-point attributes
 # (Python's float is a double-precision C++)
@@ -62,6 +65,7 @@ class Position:
         )
 
     def to_xy(self):
+        print("LAT={:.15f}; LONG={:.15f}".format(self.lat, self.long))
         x = EARTH_RADIUS * math.radians(self.long) * math.cos(math.radians(self.lat))
         y = EARTH_RADIUS * math.radians(self.lat)
         return XYPoint(x, y)

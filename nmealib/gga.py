@@ -8,8 +8,8 @@ import re
 # Convert Degrees'Minute to decimal helper function
 # 3723.2475
 # DDMM.MMMM
-def minutes_to_decimal(minutes_mantissa: int, minutes_frac: int):
-    return (minutes_mantissa + minutes_frac / 10000.0) / 60.0
+def minutes_to_decimal(minutes_mantissa: int, minutes_frac: float):
+    return (minutes_mantissa + minutes_frac) / 60.0
 
 class GPGGASentence:
     def __init__(
@@ -63,22 +63,22 @@ def parse_GPGGA(inSentence):
     parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(2)) * 60.0
     parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(3))
 
-    latitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d{4})", fields[2])
+    latitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d+)", fields[2])
     if latitude is None:
         raise RuntimeError("Unable to parse Latitude")
     parsedGPGGA.lat = float(latitude.group(1))
     parsedGPGGA.lat = parsedGPGGA.lat + minutes_to_decimal(
-        int(latitude.group(2)), int(latitude.group(4))
+        int(latitude.group(2)), float(latitude.group(4)) / (10.0 ** len(latitude.group(4)))
     )
     if fields[3] == "S":
         parsedGPGGA.lat = -parsedGPGGA.lat
 
-    longitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d{4})", fields[4])
+    longitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d+)", fields[4])
     if longitude is None:
         raise RuntimeError("Unable to parse Longitude")
     parsedGPGGA.long = float(longitude.group(1))
     parsedGPGGA.long = parsedGPGGA.long + minutes_to_decimal(
-        int(longitude.group(2)), int(longitude.group(4))
+        int(longitude.group(2)), float(longitude.group(4)) / (10 ** len(longitude.group(4)))
     )
 
     west = re.match(r"\s*(\w+)", fields[5])

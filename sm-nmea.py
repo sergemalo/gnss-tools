@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea, RMCSentence, parse_GPRMC, GPGGASentence, parse_GPGGA, Position, XYPoint
+from nmealib import nmea, RMCSentence, parse_GPRMC, GPGGASentence, parse_GPGGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
 
@@ -38,11 +38,33 @@ def load_nmea_file(file_name: str):
     nmea_sentences = []
 
     with open(file_name) as f:
-        for line in f:
+        for line in f: # Throws UnicodeDecodeError when binary data is parsed :-/
             if (nmea.msg_type(line) == "RMC"):
                 nmea_sentences.append(parse_GPRMC(line))
             elif (nmea.msg_type(line) == "GGA"):
                 nmea_sentences.append(parse_GPGGA(line))
+
+    return nmea_sentences
+
+
+def load_nmea_file2(file_name: str):
+    nmea_sentences = []
+
+    with open(file_name, 'rb') as f:
+        all_lines = f.read().split(b'\n')
+        print("Nb lines: ", len(all_lines))
+        for l in all_lines:
+            try:
+                s = l.decode('utf-8')
+            except UnicodeDecodeError:
+                print("Skipping binary data")
+            #print(s)
+            if (nmea.is_nmea(s)):
+                #print("NMEA:", s)
+                if (nmea.msg_type(s) == "RMC"):
+                    nmea_sentences.append(parse_GPRMC(s))
+                elif (nmea.msg_type(s) == "GGA"):
+                    nmea_sentences.append(parse_GPGGA(s))
 
     return nmea_sentences
 
@@ -87,11 +109,20 @@ def cep(nmea_sentences: list):
         if type(line) == GPGGASentence:
             lla = Position(line.lat, line.long, line.alt)
             xy_positions.append(lla.to_xy())
-    print (xy_positions)
+    #print (xy_positions)
     # Compute Average position
-    avg = XYPoint(sum([p.x for p in xy_positions])/len(xy_positions), sum([p.y for p in xy_positions])/len(xy_positions))
+    avg_xy_pos = XYPoint(sum([p.x for p in xy_positions])/len(xy_positions), sum([p.y for p in xy_positions])/len(xy_positions))
 
-    print ("Average XY Position: ", avg)
+
+    print ("Average XY Position: ", avg_xy_pos)
+
+    distances = []
+    for p in xy_positions:
+        distances.append(xy_dist(p, avg_xy_pos))
+
+    for d in distances:
+        print("{:.15}".format(d))
+
     # Compute X, Y, Z RMS
     # Compute CEP
     # Compute RMS
@@ -120,7 +151,10 @@ def main():
 
     nmea.toto()
 
-    nmea_sentences = load_nmea_file(opt.file_name)
+    nmea_sentences = load_nmea_file2(opt.file_name)
+    if (len(nmea_sentences) < 2):
+        print("Less than 2 NMEA sentences detected - no analysis to perform")
+        return
     analyze_time_rmc(nmea_sentences)
     cep(nmea_sentences)
 
