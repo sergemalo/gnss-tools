@@ -2,7 +2,7 @@ from nmea import toto
 from nmea import talker_id
 from nmea import msg_type
 from position import Position, XYPoint, xy_dist
-from gga import parse_GPGGA
+from gga import parse_GGA
 from rmc import parse_GPRMC
 from rmc import RMCSentence
 import math
@@ -39,20 +39,20 @@ def test_msg_type():
     assert msg_t == "GGA"
 
 
-def unit_test_GPGGA(sentence, expectedTime, expectedPos):
+def unit_test_GGA(sentence, expectedTime, expectedPos):
     parsedPos = Position()
 
     print(sentence)
 
-    parsedGPGGA = parse_GPGGA(sentence)
-    parsedPos.lat = parsedGPGGA.lat
-    parsedPos.long = parsedGPGGA.long
-    parsedPos.alt = parsedGPGGA.alt
+    parsedGGA = parse_GGA(sentence)
+    parsedPos.lat = parsedGGA.lat
+    parsedPos.long = parsedGGA.long
+    parsedPos.alt = parsedGGA.alt
 
-    if not math.isclose(parsedGPGGA.utcTime, expectedTime, abs_tol=0.0000000001):
+    if not math.isclose(parsedGGA.utcTime, expectedTime, abs_tol=0.0000000001):
         print("Invalid UTC Time")
         print("Expected: " + str(expectedTime))
-        print("Parsed  : " + str(parsedGPGGA.utcTime))
+        print("Parsed  : " + str(parsedGGA.utcTime))
         return False
     if expectedPos != (parsedPos):
         print("Invalid Position")
@@ -62,36 +62,36 @@ def unit_test_GPGGA(sentence, expectedTime, expectedPos):
     return True
 
 
-def test_gpgga():
+def test_gga():
 
     expectedPos = Position(-43.1234, -73.0, 2.0)
-    assert unit_test_GPGGA(
+    assert unit_test_GGA(
         "$GPGGA,120000.000,4307.4040,S,07300.0000,W,1,9,0.91,2.0,M,,M,,*55",
         12 * 3600.0,
         expectedPos,
     )
     expectedPos = Position(37.387458333, -121.97236, 9.0)
-    assert unit_test_GPGGA(
+    assert unit_test_GGA(
         "$GPGGA, 161229.487, 3723.2475, N, 12158.3416, W, 1, 07, 1.0, 9.0, M, , , , 0000*18",
         16 * 3600.0 + 12 * 60.0 + 29.487,
         expectedPos,
     )
     expectedPos = Position(33.5705224283, -112.1842949, 354.682)
-    assert unit_test_GPGGA(
+    assert unit_test_GGA(
         "$GPGGA,001038.00,3334.2313457,N,11211.0576940,W,2,04,5.4,354.682,M,- 26.574,M,7.0,0138*79",
         10 * 60.0 + 38.0,
         expectedPos,
     )
 
     expectedPos = Position(45.55067116666667, -73.60205883333333, 62.9)
-    assert unit_test_GPGGA(
+    assert unit_test_GGA(
         "$GNGGA,141505.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4A",
         14 * 3600 + 15 * 60.0 + 5.0,
         expectedPos,
     )
 
     expectedPos = Position(45.55067116666667, -73.60205866666666, 62.9)
-    assert unit_test_GPGGA(
+    assert unit_test_GGA(
         "$GNGGA,141506.00,4533.04027,N,07336.12352,W,1,12,0.49,62.9,M,-32.6,M,,*48",
         14 * 3600 + 15 * 60.0 + 6.0,
         expectedPos,

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea, RMCSentence, parse_GPRMC, GPGGASentence, parse_GPGGA, Position, XYPoint, xy_dist
+from nmealib import nmea, RMCSentence, parse_GPRMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
 from numpy import std, average, mean, square
@@ -44,7 +44,7 @@ def load_nmea_file(file_name: str):
             if (nmea.msg_type(line) == "RMC"):
                 nmea_sentences.append(parse_GPRMC(line))
             elif (nmea.msg_type(line) == "GGA"):
-                nmea_sentences.append(parse_GPGGA(line))
+                nmea_sentences.append(parse_GGA(line))
 
     return nmea_sentences
 
@@ -67,7 +67,7 @@ def load_nmea_file2(file_name: str):
                 if (nmea.msg_type(s) == "RMC"):
                     nmea_sentences.append(parse_GPRMC(s))
                 elif (nmea.msg_type(s) == "GGA"):
-                    nmea_sentences.append(parse_GPGGA(s))
+                    nmea_sentences.append(parse_GGA(s))
 
     return nmea_sentences
 
@@ -109,7 +109,7 @@ def cep(nmea_sentences: list):
     # Convert all GGP positions to X,Y
     xy_positions = []
     for line in nmea_sentences:
-        if type(line) == GPGGASentence:
+        if type(line) == GGASentence:
             lla = Position(line.lat, line.long, line.alt)
             xy_positions.append(lla.to_xy())
     # Compute Average position

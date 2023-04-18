@@ -1,8 +1,8 @@
 import re
 
-# https://docs.novatel.com/OEM7/Content/Logs/GPGGA.htm
+# https://docs.novatel.com/OEM7/Content/Logs/GGA.htm
 # Example:
-# $GPGGA,202530.00,5109.0262,N,11401.8407,W,5,40,0.5,1097.36,M,-17.00,M,18,TSTR*61
+# $GGA,202530.00,5109.0262,N,11401.8407,W,5,40,0.5,1097.36,M,-17.00,M,18,TSTR*61
 
 
 # Convert Degrees'Minute to decimal helper function
@@ -11,7 +11,7 @@ import re
 def minutes_to_decimal(minutes_mantissa: int, minutes_frac: float):
     return (minutes_mantissa + minutes_frac) / 60.0
 
-class GPGGASentence:
+class GGASentence:
     def __init__(
         self,
         utcTime=0.0,
@@ -49,44 +49,44 @@ class GPGGASentence:
         )
 
 
-# GPGGA: Global Positioning System Fix Data
-def parse_GPGGA(inSentence):
+# GGA: Global Positioning System Fix Data
+def parse_GGA(inSentence):
     fields = re.split(r"\,", inSentence)
     if fields and fields[0][3:6] != "GGA":
         raise TypeError("Sentence is not NMEA XXGGA")
 
-    parsedGPGGA = GPGGASentence()
+    parsedGGA = GGASentence()
     utcTime = re.match(r"\s*(\d{1,2})(\d{2})(\d{2}\.\d*)", fields[1])
     if utcTime is None:
         raise RuntimeError("Unable to parse UTC Time")
-    parsedGPGGA.utcTime = float(utcTime.group(1)) * 3600.0
-    parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(2)) * 60.0
-    parsedGPGGA.utcTime = parsedGPGGA.utcTime + float(utcTime.group(3))
+    parsedGGA.utcTime = float(utcTime.group(1)) * 3600.0
+    parsedGGA.utcTime = parsedGGA.utcTime + float(utcTime.group(2)) * 60.0
+    parsedGGA.utcTime = parsedGGA.utcTime + float(utcTime.group(3))
 
     latitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d+)", fields[2])
     if latitude is None:
         raise RuntimeError("Unable to parse Latitude")
-    parsedGPGGA.lat = float(latitude.group(1))
-    parsedGPGGA.lat = parsedGPGGA.lat + minutes_to_decimal(
+    parsedGGA.lat = float(latitude.group(1))
+    parsedGGA.lat = parsedGGA.lat + minutes_to_decimal(
         int(latitude.group(2)), float(latitude.group(4)) / (10.0 ** len(latitude.group(4)))
     )
     if fields[3] == "S":
-        parsedGPGGA.lat = -parsedGPGGA.lat
+        parsedGGA.lat = -parsedGGA.lat
 
     longitude = re.match(r"\s*(\d{1,3})(\d{2})(\.)(\d+)", fields[4])
     if longitude is None:
         raise RuntimeError("Unable to parse Longitude")
-    parsedGPGGA.long = float(longitude.group(1))
-    parsedGPGGA.long = parsedGPGGA.long + minutes_to_decimal(
+    parsedGGA.long = float(longitude.group(1))
+    parsedGGA.long = parsedGGA.long + minutes_to_decimal(
         int(longitude.group(2)), float(longitude.group(4)) / (10 ** len(longitude.group(4)))
     )
 
     west = re.match(r"\s*(\w+)", fields[5])
     if west.group(1) == "W":
-        parsedGPGGA.long = -parsedGPGGA.long
+        parsedGGA.long = -parsedGGA.long
 
-    parsedGPGGA.hdop = float(fields[8])
-    parsedGPGGA.alt = float(fields[9])
+    parsedGGA.hdop = float(fields[8])
+    parsedGGA.alt = float(fields[9])
 
-    return parsedGPGGA
+    return parsedGGA
 
