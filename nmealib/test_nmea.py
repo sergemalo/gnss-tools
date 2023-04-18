@@ -3,7 +3,7 @@ from nmea import talker_id
 from nmea import msg_type
 from position import Position, XYPoint, xy_dist
 from gga import parse_GGA
-from rmc import parse_GPRMC
+from rmc import parse_RMC
 from rmc import RMCSentence
 import math
 from datetime import datetime, timezone
@@ -98,13 +98,13 @@ def test_gga():
     )
 
 
-def test_gprmc():
+def test_rmc():
     expected = datetime(1995, 4, 13, 21, 2, 30, tzinfo=timezone.utc)
-    test_val = parse_GPRMC(
+    test_val = parse_RMC(
         "$GPRMC,210230,A,3855.4487,N,09446.0071,W,0.0,076.2,130495,003.8,E*69")
     assert(test_val.utc_datetime == expected)
     expected = datetime(2022, 5, 13, 20, 35, 22, 120000, tzinfo=timezone.utc)
-    test_val = parse_GPRMC(
+    test_val = parse_RMC(
         "$GPRMC,203522.12,A,5109.0262308,N,11401.8407342,W,0.004,133.4,130522,0.0,E,D*2B")
     assert(test_val.utc_datetime == expected)
 

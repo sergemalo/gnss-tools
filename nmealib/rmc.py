@@ -1,9 +1,9 @@
 import re
 from datetime import datetime, timezone
 
-# https://docs.novatel.com/OEM7/Content/Logs/GPRMC.htm
+# https://docs.novatel.com/OEM7/Content/Logs/RMC.htm
 # Example:
-# $GPRMC,203522.00,A,5109.0262308,N,11401.8407342,W,0.004,133.4,130522,0.0,E,D*2B
+# $RMC,203522.00,A,5109.0262308,N,11401.8407342,W,0.004,133.4,130522,0.0,E,D*2B
 
 
 class RMCSentence:
@@ -13,7 +13,7 @@ class RMCSentence:
         )
 
 
-def parse_GPRMC(in_sentence: str):
+def parse_RMC(in_sentence: str):
     fields = re.split(r"\,", in_sentence)
     if fields and fields[0][3:6] != "RMC":
         raise TypeError("Sentence is not NMEA XXRMC")

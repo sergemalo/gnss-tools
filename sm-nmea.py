@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea, RMCSentence, parse_GPRMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
+from nmealib import nmea, RMCSentence, parse_RMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
 from numpy import std, average, mean, square
@@ -42,7 +42,7 @@ def load_nmea_file(file_name: str):
     with open(file_name) as f:
         for line in f: # Throws UnicodeDecodeError when binary data is parsed :-/
             if (nmea.msg_type(line) == "RMC"):
-                nmea_sentences.append(parse_GPRMC(line))
+                nmea_sentences.append(parse_RMC(line))
             elif (nmea.msg_type(line) == "GGA"):
                 nmea_sentences.append(parse_GGA(line))
 
@@ -65,7 +65,7 @@ def load_nmea_file2(file_name: str):
             if (nmea.is_nmea(s)):
                 #print("NMEA:", s)
                 if (nmea.msg_type(s) == "RMC"):
-                    nmea_sentences.append(parse_GPRMC(s))
+                    nmea_sentences.append(parse_RMC(s))
                 elif (nmea.msg_type(s) == "GGA"):
                     nmea_sentences.append(parse_GGA(s))
 
