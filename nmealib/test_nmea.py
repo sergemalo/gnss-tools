@@ -83,6 +83,21 @@ def test_gpgga():
         expectedPos,
     )
 
+    expectedPos = Position(45.55067116666667, -73.60205883333333, 62.9)
+    assert unit_test_GPGGA(
+        "$GNGGA,141505.00,4533.04027,N,07336.12353,W,1,12,0.49,62.9,M,-32.6,M,,*4A",
+        14 * 3600 + 15 * 60.0 + 5.0,
+        expectedPos,
+    )
+
+    expectedPos = Position(45.55067116666667, -73.60205866666666, 62.9)
+    assert unit_test_GPGGA(
+        "$GNGGA,141506.00,4533.04027,N,07336.12352,W,1,12,0.49,62.9,M,-32.6,M,,*48",
+        14 * 3600 + 15 * 60.0 + 6.0,
+        expectedPos,
+    )
+
+
 def test_gprmc():
     expected = datetime(1995, 4, 13, 21, 2, 30, tzinfo=timezone.utc)
     test_val = parse_GPRMC(

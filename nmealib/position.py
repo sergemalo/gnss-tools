@@ -2,6 +2,8 @@ import math
 from collections import namedtuple
 
 EARTH_RADIUS = 6371008.8
+ABSOLUTE_LAT_TOLERANCE = 0.001 / EARTH_RADIUS # 1mm in Radians
+ABSOLUTE_ALT_TOLERANCE = 0.001 # 1mm
 
 XYPoint = namedtuple("XYPoint", "x y")
 
@@ -65,16 +67,16 @@ class Position:
         )
 
     def to_xy(self):
-        print("LAT={:.15f}; LONG={:.15f}".format(self.lat, self.long))
+        #print("LAT={:.15f}; LONG={:.15f}".format(self.lat, self.long))
         x = EARTH_RADIUS * math.radians(self.long) * math.cos(math.radians(self.lat))
         y = EARTH_RADIUS * math.radians(self.lat)
         return XYPoint(x, y)
 
     def __eq__(self, pos):
         return (
-            math.isclose(self.lat, pos.lat, abs_tol=0.00001)
-            and math.isclose(self.long, pos.long, abs_tol=0.00001)
-            and math.isclose(self.alt, pos.alt, abs_tol=0.00001)
+            math.isclose(self.lat, pos.lat, abs_tol=ABSOLUTE_LAT_TOLERANCE)
+            and math.isclose(self.long, pos.long, abs_tol=ABSOLUTE_LAT_TOLERANCE)
+            and math.isclose(self.alt, pos.alt, abs_tol=ABSOLUTE_ALT_TOLERANCE)
         )
 
 

@@ -4,6 +4,8 @@ import version
 from nmealib import nmea, RMCSentence, parse_GPRMC, GPGGASentence, parse_GPGGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
+from numpy import std, average, mean, square
+from math import sqrt
 
 class scriptOptions:
     def __init__(self):
@@ -57,7 +59,8 @@ def load_nmea_file2(file_name: str):
             try:
                 s = l.decode('utf-8')
             except UnicodeDecodeError:
-                print("Skipping binary data")
+                pass
+                #print("Skipping binary data")
             #print(s)
             if (nmea.is_nmea(s)):
                 #print("NMEA:", s)
@@ -109,7 +112,6 @@ def cep(nmea_sentences: list):
         if type(line) == GPGGASentence:
             lla = Position(line.lat, line.long, line.alt)
             xy_positions.append(lla.to_xy())
-    #print (xy_positions)
     # Compute Average position
     avg_xy_pos = XYPoint(sum([p.x for p in xy_positions])/len(xy_positions), sum([p.y for p in xy_positions])/len(xy_positions))
 
@@ -120,8 +122,14 @@ def cep(nmea_sentences: list):
     for p in xy_positions:
         distances.append(xy_dist(p, avg_xy_pos))
 
-    for d in distances:
-        print("{:.15}".format(d))
+    #for d in distances:
+    #    print("{:.15}".format(d))
+
+    print("Standard Deviation: {:.3f} m".format(std(distances)))
+    print("Average error: {:.3f} m".format(average(distances)))
+    print("Mean error: {:.3f} m".format(mean(distances)))
+    print("RMS error: {:.3f} m".format( sqrt(mean(square(distances) ) ) ) )
+
 
     # Compute X, Y, Z RMS
     # Compute CEP
