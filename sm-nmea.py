@@ -4,8 +4,9 @@ import version
 from nmealib import nmea, RMCSentence, parse_RMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
-from numpy import std, average, mean, square
+from numpy import std, average, mean, square, median
 from math import sqrt
+import matplotlib.pyplot as plt
 
 class scriptOptions:
     def __init__(self):
@@ -101,10 +102,6 @@ def analyze_time_rmc(nmea_sentences: list):
 
     return duration
 
-#φ: Latitude
-#λ: Longitude
-#x = r λ cos(φ0)
-#y = r φ
 def cep(nmea_sentences: list):
     # Convert all GGP positions to X,Y
     xy_positions = []
@@ -129,13 +126,39 @@ def cep(nmea_sentences: list):
     print("Average error: {:.3f} m".format(average(distances)))
     print("Mean error: {:.3f} m".format(mean(distances)))
     print("RMS error: {:.3f} m".format( sqrt(mean(square(distances) ) ) ) )
+    cep = median(distances)
+    print("CEP (median): {:.3f} m".format(cep))
 
+    plot_cep(xy_positions, avg_xy_pos, max(distances), cep)
 
-    # Compute X, Y, Z RMS
-    # Compute CEP
-    # Compute RMS
-    # Compute 2D R95
-    # Compute 2drms
+def plot_cep(positions, center, max_distance, cep):
+
+    # Use OO API of matplotlib
+    fig, ax = plt.subplots()
+
+    # Make sure Axes width/height are equal,
+    # because we want the CEP cirle to be a circle, not an oval.
+    ax.set_aspect(aspect='equal')
+    ax.set_xlabel('x in meters')
+    ax.set_ylabel('y in meters')
+    ax.set_title('Circular Error Probable (CEP)')
+    ax.set_xlim(-max_distance, max_distance)
+    ax.set_ylim(-max_distance, max_distance)
+
+    # TBD: is this the best way to draw a circle on the Axes ?
+    circle1 = plt.Circle((0, 0), cep, color='r', fill=False, label='CEP = {:.3f} m'.format(cep))
+    ax.add_patch(circle1)
+
+    xs = []
+    ys = []
+    for p in positions:
+        xs.append(p.x - center.x)
+    for p in positions:
+        ys.append(p.y - center.y)
+    ax.scatter(xs, ys, s=1, facecolor='C0', edgecolor='k')
+    ax.legend()
+
+    plt.show()
 
 
 def unit_test():
