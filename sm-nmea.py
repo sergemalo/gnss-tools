@@ -4,7 +4,7 @@ import version
 from nmealib import nmea, RMCSentence, parse_RMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
-from numpy import std, average, mean, square, median
+from numpy import std, average, mean, square, median, quantile
 from math import sqrt
 import matplotlib.pyplot as plt
 
@@ -126,12 +126,16 @@ def cep(nmea_sentences: list):
     print("Average error: {:.3f} m".format(average(distances)))
     print("Mean error: {:.3f} m".format(mean(distances)))
     print("RMS error: {:.3f} m".format( sqrt(mean(square(distances) ) ) ) )
+    print("2dRMS error: {:.3f} m".format( 2*sqrt(mean(square(distances) ) ) ) )
     cep = median(distances)
     print("CEP (median): {:.3f} m".format(cep))
 
-    plot_cep(xy_positions, avg_xy_pos, max(distances), cep)
+    r95 = quantile(distances, 0.95)
+    print("R95: {:.3f} m".format(r95))
 
-def plot_cep(positions, center, max_distance, cep):
+    plot_cep(xy_positions, avg_xy_pos, max(distances), cep, r95)
+
+def plot_cep(positions, center, max_distance, cep, r95):
 
     # Use OO API of matplotlib
     fig, ax = plt.subplots()
@@ -146,8 +150,10 @@ def plot_cep(positions, center, max_distance, cep):
     ax.set_ylim(-max_distance, max_distance)
 
     # TBD: is this the best way to draw a circle on the Axes ?
-    circle1 = plt.Circle((0, 0), cep, color='r', fill=False, label='CEP = {:.3f} m'.format(cep))
+    circle1 = plt.Circle((0, 0), cep, color='b', fill=False, label='CEP = {:.3f} m'.format(cep))
     ax.add_patch(circle1)
+    circle2 = plt.Circle((0, 0), r95, color='r', fill=False, label='R95 = {:.3f} m'.format(r95))
+    ax.add_patch(circle2)
 
     xs = []
     ys = []
@@ -188,5 +194,18 @@ def main():
         return
     analyze_time_rmc(nmea_sentences)
     cep(nmea_sentences)
+
+    ##
+    # sep - convert LLA to XYZ (3D)
+    ## plot in 3D
+    ## Move functions to NMEA lib
+    ## class nmea file
+    ##    Parse all sentences on open - Optimize later if needed
+    ##    Get all positions
+    ##    Get start/end time
+    ## function to compute
+    ##    Average position
+    ##    All precision / accuracy
+
 
 main()
