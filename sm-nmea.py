@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import version
-from nmealib import nmea, RMCSentence, parse_RMC, GGASentence, parse_GGA, Position, XYPoint, xy_dist
+from nmealib import nmea, RMCSentence, parse_RMC, GGASentence, parse_GGA, PosLLA, XYPoint, xy_dist
 from pathlib import PurePath
 from datetime import timedelta
 from numpy import std, average, mean, square, median, quantile
@@ -107,13 +107,13 @@ def cep(nmea_sentences: list):
     xy_positions = []
     for line in nmea_sentences:
         if type(line) == GGASentence:
-            lla = Position(line.lat, line.long, line.alt)
+            lla = PosLLA(line.lat, line.long, line.alt)
             xy_positions.append(lla.to_xy())
     # Compute Average position
     avg_xy_pos = XYPoint(sum([p.x for p in xy_positions])/len(xy_positions), sum([p.y for p in xy_positions])/len(xy_positions))
 
 
-    print ("Average XY Position: ", avg_xy_pos)
+    print ("Average XY PosLLA: ", avg_xy_pos)
 
     distances = []
     for p in xy_positions:
