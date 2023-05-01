@@ -1,7 +1,7 @@
 from nmea import toto
 from nmea import talker_id
 from nmea import msg_type
-from position import Position, XYPoint, xy_dist
+from position import Position, XYPoint, xy_dist, PosXYZ
 from gga import parse_GGA
 from rmc import parse_RMC
 from rmc import RMCSentence
@@ -136,3 +136,24 @@ def test_dist_xy():
     assert(xy_dist(a, b) == 1.0)
     b = XYPoint(x=1, y=1.0)
     assert(xy_dist(a, b) == math.sqrt(2))
+
+
+
+def test_lla_to_PosXYZ():
+    my_abs_tol = 0.001 # 1mm absolute totelance
+
+    pos = Position(0, 0, 0)
+    expectedPosXYZ = PosXYZ(0.0, 0.0, 0.0)
+    testXYZ = pos.to_PosXYZ()
+    assert(math.isclose(expectedPosXYZ.x, testXYZ.x, abs_tol = my_abs_tol) and
+           math.isclose(expectedPosXYZ.y, testXYZ.y, abs_tol = my_abs_tol) and
+           math.isclose(expectedPosXYZ.z, testXYZ.z, abs_tol = my_abs_tol))
+
+
+    pos = Position(0, 0, 1234.56)
+    expectedPosXYZ = PosXYZ(0.0, 0.0, 1234.56)
+    testXYZ = pos.to_PosXYZ()
+    assert(math.isclose(expectedPosXYZ.x, testXYZ.x, abs_tol = my_abs_tol) and
+           math.isclose(expectedPosXYZ.y, testXYZ.y, abs_tol = my_abs_tol) and
+           math.isclose(expectedPosXYZ.z, testXYZ.z, abs_tol = my_abs_tol))
+

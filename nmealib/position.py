@@ -11,6 +11,35 @@ XYPoint = namedtuple("XYPoint", "x y")
 def xy_dist(a, b):
     return math.sqrt((a.x - b.x) ** 2 + ((a.y) - b.y) ** 2)
 
+class PosXYZ:
+    def __init__(self, x=0.0, y=0.0, z=0.0):
+        self.x = x
+        self.y = y
+        self.z = z
+
+        @property
+        def x(self):
+            return self._x
+
+        @x.setter
+        def x(self, value):
+            self._x = value
+
+        @property
+        def y(self):
+            return self._y
+
+        @y.setter
+        def y(self, value):
+            self._y = value
+
+        @property
+        def z(self):
+            return self._z
+
+        @z.setter
+        def z(self, value):
+            self._z = value
 
 # Position Class:
 # Values are stored in decimal, in floating-point attributes
@@ -69,10 +98,13 @@ class Position:
         )
 
     def to_xy(self):
-        # print("LAT={:.15f}; LONG={:.15f}".format(self.lat, self.long))
         x = EARTH_RADIUS * math.radians(self.long) * math.cos(math.radians(self.lat))
         y = EARTH_RADIUS * math.radians(self.lat)
         return XYPoint(x, y)
+
+    def to_PosXYZ(self):
+        xy = self.to_xy()
+        return PosXYZ(xy.x, xy.y, self.alt)
 
     # φ: Latitude
     # λ: Longitude
