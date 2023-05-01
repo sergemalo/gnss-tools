@@ -41,13 +41,13 @@ class PosXYZ:
         def z(self, value):
             self._z = value
 
-# Position Class:
+# Position LLA Class:
 # Values are stored in decimal, in floating-point attributes
 # (Python's float is a double-precision C++)
 # Latitude range : [-90.0, +90.0]
 # Longitude range: [-180.0, +180.0]
 # Altitude range: [-Infinite, +Infinite]
-class Position:
+class PosLLA:
     def __init__(self, lat=0.0, long=0.0, alt=0.0):
         self.lat = lat
         self.long = long
